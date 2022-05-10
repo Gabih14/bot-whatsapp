@@ -20,6 +20,7 @@ const express = require('express');
 const app = express();
 */
 
+//Probar borrar country_code y number
 const country_code = "+54";
 
 const number = "2615994531";
@@ -49,8 +50,21 @@ client.on('qr', qr => {
     qrcode.generate(qr, {small: true});
 });
 
+client.on('authenticated', session => {
+    sessionData = session;
+    console.log("autenticado");
+    /*
+    fs.writeFile(SESSION_FILE_PATH, JSON.stringify(session), err => {
+        if(err){
+            console.error(err);
+        }
+    })
+    */
+})//;
+
 client.on('ready', () => {
     console.log('el cliente esta listo');
+    /*
 
     let chatId = country_code+number+"@c.us";
 
@@ -60,17 +74,10 @@ client.on('ready', () => {
                             console.log('el mensaje fue enviado');
                         }
                     })
+                    */
 });
 
-client.on('authenticated', session => {
-    sessionData = session;
-    console.log("autenticado");
-    fs.writeFile(SESSION_FILE_PATH, JSON.stringify(session), err => {
-        if(err){
-            console.error(err);
-        }
-    })
-})//;
+
 
 client.on('auth_failure', msg => {
     console.error('hubo un fallo en la auteticacion', msg);
