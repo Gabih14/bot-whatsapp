@@ -1,12 +1,12 @@
-let acitvoBot=false;
+let acitvoBot = false;
 
-var contador=0;
+var contador = 0;
 
-const fs =  require('fs');
+const fs = require('fs');
 
 const qrcode = require('qrcode-terminal');
 
-const {Client, LocalAuth} = require('whatsapp-web.js');
+const { Client, LocalAuth } = require('whatsapp-web.js');
 
 const SESSION_FILE_PATH = "./session.json";
 
@@ -25,7 +25,7 @@ const country_code = "+54";
 
 const number = "2615994531";
 
-const msg = "Hola mundo!"; 
+const msg = "Hola mundo!";
 
 /*
 let sessionData;
@@ -39,7 +39,7 @@ if(fs.existsSync(SESSION_FILE_PATH)){
 
 
 const client = new Client({
-    authStrategy:new LocalAuth(), 
+    authStrategy: new LocalAuth(),
 });
 
 //inicializar cliente
@@ -47,7 +47,7 @@ client.initialize();
 
 
 client.on('qr', qr => {
-    qrcode.generate(qr, {small: true});
+    qrcode.generate(qr, { small: true });
 });
 
 client.on('authenticated', session => {
@@ -86,7 +86,7 @@ client.on('auth_failure', msg => {
 //opciones de mensaje
 client.on('message', msg => {
     //sendMessage(msg.from, 'HOLA');
-    
+
     /*
     if(msg.body == "Hola"){
         client.sendMessage(msg.from, "Hola, que tal?");
@@ -99,66 +99,68 @@ client.on('message', msg => {
     /*
     Preguntas frecuentes
     */
-   
-   switch (msg.body) {
-       case 'quiero_info':
-           sendMessage(msg.from, 'Cotizaciones');
-           break;
-        case 'adios':
-            sendMessage(msg.from, 'Nos vemos pronto');
-           break;
-   
-       default:
-           break;
-   }
 
-   console.log(contador+" "+msg.from);
-   saveHistorial(msg.from, msg.body);
+    switch (msg.body) {
+        case 'quiero_info':
+            sendMessage(msg.from, 'Cotizaciones');
+            break;
+        case 'adios':
+        case 'adiós':
+        case 'Adiós':
+        case 'Adios':
+            sendMessage(msg.from, 'Nos vemos pronto');
+            break;
+        default:
+            break;
+    }
+
+    console.log(contador + " " + msg.from);
+    saveHistorial(msg.from, msg.body);
 });
 
 //envia mensaje
 const sendMessage = (to, message) => {
-    client.sendMessage(to,message);
+    client.sendMessage(to, message);
 }
 
 //excel
-const saveHistorial = (number,message) => {
+const saveHistorial = (number, message) => {
     const pathChat = `./chats/${number}.xlsx`;
     const workbook = new exceljs.Workbook();
     const today = moment().format('DD-MM-YYYY hh:mm');
 
     if (fs.existsSync(pathChat)) {
         workbook.xlsx.readFile(pathChat)
-        .then(() => {
-            const worksheet = workbook.getWorksheet(1);
-            const lastRow = worksheet.lastRow;
-            let getRowInsert = worksheet.getRow(++(lastRow.number))
-            getRowInsert.getCell('A').value = today;
-            getRowInsert.getCell('B').value = message;
-            getRowInsert.commit();
-            workbook.xlsx.writeFile(pathChat)
             .then(() => {
-                console.log('Se agrego chat');
+                const worksheet = workbook.getWorksheet(1);
+                const lastRow = worksheet.lastRow;
+                let getRowInsert = worksheet.getRow(++(lastRow.number))
+                getRowInsert.getCell('A').value = today;
+                getRowInsert.getCell('B').value = message;
+                getRowInsert.commit();
+                workbook.xlsx.writeFile(pathChat)
+                    .then(() => {
+                        console.log('Se agrego chat');
+                    })
+                    .catch(() => {
+                        console.log('Algo fallo agregando')
+                    })
             })
-            .catch(() => {
-                console.log('Algo fallo agregando')
-            } )
-        })
     } else {
         //CREAMOS
         const worksheet = workbook.addWorksheet('Chats');
         worksheet.columns = [
-            {header: 'Fecha', key:'date'},
-            {header: 'Mensaje', key:'message'},
+            { header: 'Fecha', key: 'date' },
+            { header: 'Mensaje', key: 'message' },
         ]
-        worksheet.addRow([today,message]);
+        worksheet.addRow([today, message]);
         workbook.xlsx.writeFile(pathChat)
-        .then(() => {
-            console.log('Historial creado');
-        })
-        .catch(() => {
-            console.log('Algo fallo')
-        } )
+            .then(() => {
+                console.log('Historial creado');
+            })
+            .catch(() => {
+                console.log('Algo fallo')
+            })
     }
 }
 
