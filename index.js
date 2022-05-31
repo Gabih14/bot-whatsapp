@@ -85,34 +85,34 @@ client.on('auth_failure', msg => {
 
 //opciones de mensaje
 client.on('message', msg => {
-    //sendMessage(msg.from, 'HOLA');
+    var mensaje = msg.body;
 
-    /*
-    if(msg.body == "Hola"){
-        client.sendMessage(msg.from, "Hola, que tal?");
-        contador++;
-        console.log(contador+" "+msg.from);
+    const pathChat = `./chats/${msg.from}.xlsx`;
+    if (fs.existsSync(pathChat)) {
+        // console.log("existe");
+        switch (mensaje.toLowerCase()) {
+            case 'quiero info':
+                sendMessage(msg.from, 'Cotizaciones');
+                break;
+            case 'adios':
+            case 'adiós':
+                sendMessage(msg.from, 'Nos vemos pronto');
+                break;
+            default:
+                sendMessage(msg.from, 'No entendí tu mensaje');
+                break;
+        }
+
+    } else {
+        // console.log("NO existe");
+        sendMessage(msg.from, 'Hola soy el bot de Elyon, manda "Quiero info" para recibir las cotizaciones');
     }
-    */
-
 
     /*
     Preguntas frecuentes
     */
 
-    switch (msg.body) {
-        case 'quiero_info':
-            sendMessage(msg.from, 'Cotizaciones');
-            break;
-        case 'adios':
-        case 'adiós':
-        case 'Adiós':
-        case 'Adios':
-            sendMessage(msg.from, 'Nos vemos pronto');
-            break;
-        default:
-            break;
-    }
+
 
     console.log(contador + " " + msg.from);
     saveHistorial(msg.from, msg.body);
@@ -141,6 +141,7 @@ const saveHistorial = (number, message) => {
                 workbook.xlsx.writeFile(pathChat)
                     .then(() => {
                         console.log('Se agrego chat');
+
                     })
                     .catch(() => {
                         console.log('Algo fallo agregando')
@@ -157,6 +158,7 @@ const saveHistorial = (number, message) => {
         workbook.xlsx.writeFile(pathChat)
             .then(() => {
                 console.log('Historial creado');
+
             })
             .catch(() => {
                 console.log('Algo fallo')
